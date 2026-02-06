@@ -1,0 +1,48 @@
+# Flutter
+**/*.lock
+.dart_tool/
+.flutter-plugins-dependencies
+.flutter-plugins
+.flutter-plugins-file
+.packages
+build/
+*.iml
+*.ipr
+*.iws
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# IDE
+.vscode/
+*.code-workspace
+
+# Coverage
+coverage/
+lcov.info
+
+# Generated files
+*.pb.dart
+*.g.dart
+*.freezed.dart
+*.gr.dart
