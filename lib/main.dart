@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
   bool _isLoading = false;
   String? _imageUrl;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -86,9 +88,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendMessage() async {
+    print('_sendMessage called');
     if (_textController.text.trim().isEmpty) return;
 
     final message = _textController.text.trim();
+    print('Message to send: $message');
     _textController.clear();
     _focusNode.requestFocus();
 
@@ -106,16 +110,26 @@ class _ChatScreenState extends State<ChatScreen> {
       final apiKey = prefs.getString('apiKey') ?? '';
       final modelName = prefs.getString('modelName') ?? '';
 
+      final requestBody = {
+        'text': message,
+        'api_key': apiKey,
+        'model_name': modelName,
+      };
+
+      // Only add image_url if it's not null and not empty
+      if (_imageUrl?.isNotEmpty == true) {
+        requestBody['image_url'] = _imageUrl!;
+      }
+
+      print('API Request body: $requestBody');
+
       final response = await http.post(
         Uri.parse('$apiBaseUrl/generate'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'text': message,
-          'image_url': _imageUrl,
-          'api_key': apiKey,
-          'model_name': modelName,
-        }),
+        body: json.encode(requestBody),
       );
+      print('API Response status: ${response.statusCode}');
+      print('API Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -131,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
       } else {
         setState(() {
           _messages.add(ChatMessage(
-            text: 'Error: ${response.statusCode} - ${response.body}',
+            text: 'API Error: ${response.statusCode} - ${response.body}',
             isUser: false,
             timestamp: DateTime.now(),
           ));
@@ -141,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(
-          text: 'Error: ${e.toString()}',
+          text: 'Connection Error: ${e.toString()}',
           isUser: false,
           timestamp: DateTime.now(),
         ));
@@ -213,12 +227,34 @@ class _ChatScreenState extends State<ChatScreen> {
                     message.isUser ? Colors.blue[700] : const Color(0xFF2A2A2A),
                 borderRadius: borderRadius,
               ),
-              child: Text(
-                message.text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      message.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  if (!message.isUser) // Only show copy button for AI responses
+                    IconButton(
+                      icon: const Icon(Icons.copy,
+                          color: Colors.white70, size: 16),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: message.text));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Message copied to clipboard!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      padding: const EdgeInsets.only(left: 8),
+                      constraints: const BoxConstraints(),
+                    ),
+                ],
               ),
             ),
           ),
@@ -356,34 +392,51 @@ class _ChatScreenState extends State<ChatScreen> {
                   tooltip: 'Attach image',
                 ),
                 Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFF2A2A2A),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    style: const TextStyle(color: Colors.white),
-                    maxLines: null,
-                    minLines: 1,
-                    onChanged: (value) {
-                      setState(() {});
-                    },
-                    onSubmitted: (value) {
-                      if (value.isNotEmpty) {
-                        _sendMessage();
+                  child: RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    onKey: (event) {
+                      if (event is RawKeyDownEvent) {
+                        if (event.logicalKey == LogicalKeyboardKey.enter) {
+                          // Check if Shift is pressed for new line, otherwise send message
+                          if (!event.isShiftPressed) {
+                            print('Enter key pressed without Shift');
+                            if (_textController.text.trim().isNotEmpty) {
+                              _sendMessage();
+                            }
+                          }
+                        }
                       }
                     },
+                    child: TextField(
+                      controller: _textController,
+                      focusNode: _focusNode,
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFF2A2A2A),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: null,
+                      minLines: 1,
+                      onChanged: (value) {
+                        setState(() {});
+                      },
+                      onSubmitted: (value) {
+                        print('onSubmitted called with: $value');
+                        if (value.isNotEmpty) {
+                          _sendMessage();
+                        }
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
