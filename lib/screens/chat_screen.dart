@@ -4,6 +4,7 @@ import 'chat_state.dart';
 import 'chat_ui.dart';
 import 'chat_image_handler.dart';
 import 'settings_screen.dart';
+import '../widgets/input/consolidated_file_attachment_button.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});

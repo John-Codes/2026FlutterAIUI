@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../widgets/message_widget.dart' as message_widgets;
 import '../widgets/message/loading_indicator.dart';
-import '../widgets/input_file_chat_button.dart';
-import 'chat_text_input.dart';
+import '../widgets/input/chat_input_row.dart';
+import '../widgets/input/chat_input_state_provider.dart';
+import '../widgets/input/consolidated_file_attachment_button.dart';
 
 class ChatUI extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -116,14 +117,33 @@ class _ChatUIState extends State<ChatUI> {
               },
             ),
           ),
-          inputFileChatButton(
+          ChatInputStateProvider(
             textController: widget.textController,
             focusNode: widget.focusNode,
+            isLoading: widget.isLoading,
+            isProcessingFile: widget.isProcessingFile,
+            selectedImageData: widget.selectedImageData,
             onSendMessage: widget.onSendMessage,
             onShowImageDialog: widget.onShowImageDialog,
-            selectedImageData: widget.selectedImageData,
             onClearSelectedImage: widget.onClearSelectedImage,
-            isLoading: widget.isLoading || widget.isProcessingFile,
+            child: Builder(
+              builder: (context) {
+                final stateProvider = ChatInputStateProvider.of(context);
+                if (stateProvider == null) {
+                  return const SizedBox.shrink();
+                }
+                return ConsolidatedFileAttachmentButton(
+                  textController: stateProvider.textController,
+                  focusNode: stateProvider.focusNode,
+                  onSendMessage: stateProvider.onSendMessage,
+                  onShowImageDialog: stateProvider.onShowImageDialog,
+                  selectedImageData: stateProvider.selectedImageData,
+                  onClearSelectedImage: stateProvider.onClearSelectedImage,
+                  isLoading: stateProvider.isLoading,
+                  isProcessingFile: stateProvider.isProcessingFile,
+                );
+              },
+            ),
           ),
         ],
       ),

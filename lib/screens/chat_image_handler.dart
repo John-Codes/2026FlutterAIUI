@@ -1,18 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_selector/file_selector.dart';
-import 'package:camera/camera.dart';
-import '../widgets/dialogs/camera_dialog.dart';
-import '../widgets/dialogs/image_selection_dialog.dart';
+import '../services/unified_image_picker_service.dart';
+import '../widgets/dialogs/unified_image_selection_dialog.dart';
 import '../widgets/dialogs/url_dialog.dart';
 
+/// Unified handler for image selection operations
+/// Follows SRP by only handling image selection coordination
 class ChatImageHandler {
   final Function(String?) onImageSelected;
   final Function() onShowImageDialog;
   final Function() onClearSelectedImage;
   final Function(bool) onProcessingStateChanged;
   final BuildContext context;
+
+  final UnifiedImagePickerService _imagePickerService =
+      UnifiedImagePickerService();
 
   ChatImageHandler({
     required this.onImageSelected,
@@ -27,42 +29,12 @@ class ChatImageHandler {
     onProcessingStateChanged(true);
 
     try {
-      XFile? pickedFile;
+      final imageData = await _imagePickerService.pickImageFromGallery(context);
 
-      // Use file_selector for both web and mobile (it has better web support)
-      const typeGroup = XTypeGroup(
-        label: 'Images',
-        extensions: <String>['jpg', 'jpeg', 'png'],
-        mimeTypes: <String>['image/jpeg', 'image/png'],
-      );
-
-      try {
-        // Try using file_selector first (works on both web and mobile)
-        pickedFile = await openFile(
-          acceptedTypeGroups: <XTypeGroup>[typeGroup],
-          initialDirectory: '/',
-        );
-      } catch (e) {
-        // Fallback to image_picker for mobile platforms
-        final picker = ImagePicker();
-        pickedFile = await picker.pickImage(
-          source: ImageSource.gallery,
-          imageQuality: 85,
-          maxWidth: 1024,
-          maxHeight: 1024,
-        );
-      }
-
-      if (pickedFile != null) {
-        // Read file bytes
-        final bytes = await pickedFile.readAsBytes();
-
-        // Convert to base64
-        String base64Image = base64Encode(bytes);
-
+      if (imageData != null) {
         // Processing complete - hide loading indicator and set image
         onProcessingStateChanged(false);
-        onImageSelected(base64Image);
+        onImageSelected(imageData);
       } else {
         // User cancelled - hide loading indicator
         onProcessingStateChanged(false);
@@ -86,44 +58,12 @@ class ChatImageHandler {
     onProcessingStateChanged(true);
 
     try {
-      // Initialize camera
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) {
-        throw Exception('No cameras available');
-      }
+      final imageData = await _imagePickerService.pickImageFromCamera(context);
 
-      // Use the first available camera (usually back camera)
-      final camera = cameras.first;
-
-      // Get a specific controller
-      final controller = CameraController(
-        camera,
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
-
-      // Initialize the controller
-      await controller.initialize();
-
-      // Show camera dialog
-      final XFile? photo = await showDialog<XFile>(
-        context: context,
-        builder: (context) => CameraDialog(controller: controller),
-      );
-
-      // Dispose controller
-      await controller.dispose();
-
-      if (photo != null) {
-        // Read file bytes
-        final bytes = await photo.readAsBytes();
-
-        // Convert to base64
-        String base64Image = base64Encode(bytes);
-
+      if (imageData != null) {
         // Processing complete - hide loading indicator and set image
         onProcessingStateChanged(false);
-        onImageSelected(base64Image);
+        onImageSelected(imageData);
       } else {
         // User cancelled - hide loading indicator
         onProcessingStateChanged(false);
@@ -145,7 +85,7 @@ class ChatImageHandler {
   void showImageDialog() {
     showDialog(
       context: context,
-      builder: (context) => ImageSelectionDialog(
+      builder: (context) => UnifiedImageSelectionDialog(
         onPickFromGallery: pickImage,
         onPickFromCamera: pickImageFromCamera,
         onUseUrl: showUrlDialog,
@@ -169,5 +109,9 @@ class ChatImageHandler {
         },
       ),
     );
+  }
+
+  void dispose() {
+    _imagePickerService.dispose();
   }
 }

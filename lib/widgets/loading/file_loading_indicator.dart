@@ -13,6 +13,7 @@ class FileLoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints(minHeight: 60),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
@@ -23,6 +24,7 @@ class FileLoadingIndicator extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
@@ -40,7 +42,8 @@ class FileLoadingIndicator extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              Flexible(
+                fit: FlexFit.loose,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

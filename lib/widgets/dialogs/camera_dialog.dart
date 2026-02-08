@@ -25,7 +25,7 @@ class _CameraDialogState extends State<CameraDialog> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    // Don't dispose here - the ChatImageHandler will handle it
     super.dispose();
   }
 

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import '../../widgets/loading/file_loading_indicator.dart';
-import '../../widgets/input/text_input_with_keyboard.dart';
 
 class inputFileChatButton extends StatefulWidget {
   final TextEditingController textController;
@@ -141,12 +137,12 @@ class _inputFileChatButtonState extends State<inputFileChatButton> {
       ),
       child: Column(
         children: [
-          // Show loading indicator when files are being processed
-          if (widget.isLoading)
-            const FileLoadingIndicator(
-              message: 'Processing image...',
-              showProgress: true,
-            ),
+          // Temporarily disabled loading indicator to test layout issue
+          // if (widget.isLoading)
+          //   const FileLoadingIndicator(
+          //     message: 'Processing image...',
+          //     showProgress: true,
+          //   ),
           // Image preview when an image is selected
           if (widget.selectedImageData != null && !widget.isLoading)
             Container(
@@ -262,7 +258,6 @@ class _inputFileChatButtonState extends State<inputFileChatButton> {
                         }
                       }
                     }
-                    return KeyEventResult.ignored;
                   },
                   child: TextField(
                     controller: widget.textController,
