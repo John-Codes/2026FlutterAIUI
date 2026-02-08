@@ -111,7 +111,7 @@ class _inputFileChatButtonState extends State<inputFileChatButton> {
   }
 
   void _clearSelectedImage() {
-    print('_clearSelectedImage called');
+    print('_clearSelectedImage called in inputFileChatButton');
     widget.onClearSelectedImage();
     // Force a rebuild to update the UI immediately
     setState(() {});

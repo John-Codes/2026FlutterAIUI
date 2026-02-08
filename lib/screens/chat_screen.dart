@@ -31,6 +31,15 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Listen to chat state changes
+    _chatState.addListener(() {
+      setState(() {});
+    });
+  }
+
   void _handleImageSelected(String? imageData) {
     _chatState.selectedImageData = imageData;
     _chatState.imageUrl = null;

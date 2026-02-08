@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// State provider for chat input components
@@ -32,7 +33,7 @@ class ChatInputStateProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ChatInputStateProvider oldWidget) {
-    return textController != oldWidget.textController ||
+    final bool shouldNotify = textController != oldWidget.textController ||
         focusNode != oldWidget.focusNode ||
         isLoading != oldWidget.isLoading ||
         isProcessingFile != oldWidget.isProcessingFile ||
@@ -40,5 +41,17 @@ class ChatInputStateProvider extends InheritedWidget {
         onSendMessage != oldWidget.onSendMessage ||
         onShowImageDialog != oldWidget.onShowImageDialog ||
         onClearSelectedImage != oldWidget.onClearSelectedImage;
+
+    print('=== StateProvider.updateShouldNotify ===');
+    print(
+        'selectedImageData changed: ${selectedImageData != oldWidget.selectedImageData}');
+    print(
+        '  new: ${selectedImageData?.substring(0, min(10, selectedImageData!.length)) ?? 'null'}...');
+    print(
+        '  old: ${oldWidget.selectedImageData?.substring(0, min(10, oldWidget.selectedImageData!.length)) ?? 'null'}...');
+    print('shouldNotify: $shouldNotify');
+    print('=======================================');
+
+    return shouldNotify;
   }
 }

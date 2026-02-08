@@ -103,11 +103,21 @@ class ChatState extends ChangeNotifier {
   }
 
   void clearSelectedImage() {
+    print('=== ChatState.clearSelectedImage ===');
+    print('Before - hasImage: ${selectedImageData != null}');
+    print('Before - hasUrl: ${imageUrl != null}');
+
     imageUrl = null;
     selectedImageData = null;
     isProcessingFile = false;
-    print('clearSelectedImage called - clearing image data');
+
+    print('After - hasImage: ${selectedImageData != null}');
+    print('After - hasUrl: ${imageUrl != null}');
+
+    print('Calling notifyListeners()...');
     notifyListeners();
+    print('notifyListeners() completed');
+    print('====================================');
   }
 
   void dispose() {

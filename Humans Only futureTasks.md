@@ -19,3 +19,8 @@ always re run the flutter server after changes so I can test dont tell me task i
 1. fix the input file button when you press in the sub menu select image And you want to cancel the selected image it wont work or sometimes it does and then the UI does not update removing the image preview
 
 always re run the flutter server after changes so we can test.  task is done when I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files.
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+1. fix the input file button when you press in the sub menu select image And you press the send button the image should be sent to the AI api and the image preview should be updated removed from the UI and selected image emptied when the image is sent to the api and the loading indicator should continue until the AI api response arrives the ai response should be posted to the UI as a message.
+always re run the flutter server after changes so we can test.  task is done when I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files.

@@ -37,6 +37,7 @@ class _ConsolidatedFileAttachmentButtonState
     extends State<ConsolidatedFileAttachmentButton> {
   final UnifiedImagePickerService _imagePickerService =
       UnifiedImagePickerService();
+  int _buildCount = 0;
 
   @override
   void dispose() {
@@ -83,13 +84,19 @@ class _ConsolidatedFileAttachmentButtonState
   }
 
   void _clearSelectedImage() {
+    print('=== _clearSelectedImage called ===');
+    print('Before - hasImage: ${widget.selectedImageData != null}');
+    print('Build count: $_buildCount');
+
     widget.onClearSelectedImage();
-    // Force a rebuild to update the UI immediately
-    setState(() {});
-    // Also clear the text field if it contains image placeholder
-    if (widget.textController.text.contains('[Image:')) {
-      widget.textController.clear();
-    }
+
+    print('After - hasImage: ${widget.selectedImageData != null}');
+    print('=================================');
+
+    // Force rebuild to ensure UI updates
+    setState(() {
+      _buildCount++;
+    });
   }
 
   void _showErrorSnackBar(String message) {
@@ -103,6 +110,13 @@ class _ConsolidatedFileAttachmentButtonState
 
   @override
   Widget build(BuildContext context) {
+    _buildCount++;
+    print('=== Build #$_buildCount ===');
+    print('hasImage: ${widget.selectedImageData != null}');
+    print(
+        'showPreview: ${widget.selectedImageData != null && !widget.isLoading && !widget.isProcessingFile}');
+    print('selectedImageData length: ${widget.selectedImageData?.length ?? 0}');
+    print('================================');
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width > 800 ? 24 : 16,
