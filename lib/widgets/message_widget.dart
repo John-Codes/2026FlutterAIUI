@@ -1,28 +1,38 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import '../models/chat_message.dart';
+import '../../utils/formatters.dart';
 
 class MessageWidget extends StatelessWidget {
-  final Map<String, dynamic> message;
-  final bool isUser;
+  final ChatMessage message;
 
   const MessageWidget({
     super.key,
     required this.message,
-    required this.isUser,
   });
+
+  void _copyToClipboard(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to clipboard!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final content = message['content'] ?? '';
-    final imageData = message['image_data'];
-    final timestamp = message['timestamp'] ?? DateTime.now();
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isUser)
+          // Avatar
+          if (!message.isUser)
             const CircleAvatar(
               backgroundColor: Colors.blue,
               radius: 16,
@@ -43,6 +53,7 @@ class MessageWidget extends StatelessWidget {
               ),
             ),
           const SizedBox(width: 12),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +61,7 @@ class MessageWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isUser
+                    color: message.isUser
                         ? const Color(0xFF2A5CAA)
                         : const Color(0xFF2A2A2A),
                     borderRadius: BorderRadius.circular(16),
@@ -58,15 +69,15 @@ class MessageWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (imageData != null)
+                      if (message.imageData != null)
                         Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.memory(
-                              imageData is String
-                                  ? base64Decode(imageData)
-                                  : imageData,
+                              message.imageData is String
+                                  ? base64Decode(message.imageData!)
+                                  : message.imageData as Uint8List,
                               width: double.infinity,
                               height: 200,
                               fit: BoxFit.cover,
@@ -98,104 +109,54 @@ class MessageWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                      Text(
-                        content,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                      // Stack to position copy button and text properly
+                      Stack(
+                        children: [
+                          // Container for text with proper padding to avoid button overlap
+                          Container(
+                            padding: const EdgeInsets.only(
+                                bottom: 32, left: 32, right: 8),
+                            child: Text(
+                              message.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          // Copy button positioned on the left lower end inside the message
+                          Positioned(
+                            bottom: 8,
+                            left: 8,
+                            child: Container(
+                              child: IconButton(
+                                icon: const Icon(Icons.copy,
+                                    color: Colors.white70, size: 16),
+                                onPressed: () =>
+                                    _copyToClipboard(context, message.text),
+                                tooltip: 'Copy message',
+                                padding: const EdgeInsets.all(4),
+                                constraints: const BoxConstraints(
+                                  minWidth: 24,
+                                  minHeight: 24,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatTimestamp(timestamp),
+                  formatTimestamp(message.timestamp),
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 12,
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatTimestamp(dynamic timestamp) {
-    DateTime dateTime;
-    if (timestamp is DateTime) {
-      dateTime = timestamp;
-    } else if (timestamp is String) {
-      dateTime = DateTime.parse(timestamp);
-    } else {
-      dateTime = DateTime.now();
-    }
-
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
-    } else {
-      return 'Just now';
-    }
-  }
-}
-
-class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const CircleAvatar(
-            backgroundColor: Colors.blue,
-            radius: 16,
-            child: Icon(
-              Icons.smart_toy,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Row(
-                children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    'AI is thinking...',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

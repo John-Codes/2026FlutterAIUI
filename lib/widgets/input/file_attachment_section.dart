@@ -17,16 +17,14 @@ class FileAttachmentSection extends StatelessWidget {
 
     return Column(
       children: [
-        // Temporarily disabled loading indicator to test layout issue
-        // if (stateProvider.isLoading || stateProvider.isProcessingFile)
-        //   const FileLoadingIndicator(
-        //     message: 'Processing image...',
-        //     showProgress: true,
-        //   ),
+        // Show loading indicator when processing
+        if (stateProvider.isLoading || stateProvider.isProcessingFile)
+          const FileLoadingIndicator(
+            message: 'Sending image to AI...',
+            showProgress: true,
+          ),
         // Image preview when an image is selected
-        if (stateProvider.selectedImageData != null &&
-            !stateProvider.isLoading &&
-            !stateProvider.isProcessingFile)
+        if (stateProvider.selectedImageData != null)
           _buildImagePreview(stateProvider),
         // Attachment button
         _buildAttachmentButton(stateProvider),

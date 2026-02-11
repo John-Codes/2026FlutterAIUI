@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../models/chat_message.dart';
@@ -29,21 +30,26 @@ class ChatState extends ChangeNotifier {
   }
 
   Future<void> sendMessage() async {
-    print('sendMessage called');
+    print('=== sendMessage called ===');
 
     // Check if there's text or an image to send
     final hasText = textController.text.trim().isNotEmpty;
     final hasImage = selectedImageData != null;
+    print('Has text: $hasText, Has image: $hasImage');
 
-    if (!hasText && !hasImage) return;
+    if (!hasText && !hasImage) {
+      print('No text or image to send, returning');
+      return;
+    }
 
     final message = textController.text.trim();
     print('Message to send: $message');
 
     // Store current image data before clearing
     final String? currentImageData = selectedImageData;
+    print('Current image data length: ${currentImageData?.length ?? 0}');
     print(
-        'Current image data: ${currentImageData != null ? 'has image' : 'no image'}');
+        'Current image data preview: ${currentImageData?.substring(0, min(50, currentImageData.length)) ?? 'null'}...');
 
     // Clear text input but preserve image preview during API call
     textController.clear();
@@ -70,11 +76,17 @@ class ChatState extends ChangeNotifier {
     notifyListeners();
 
     try {
+      print('Making API call with message: $message');
+      print(
+          'Making API call with image data: ${currentImageData?.length ?? 0} bytes');
+
       final result = await ApiService.generateResponse(
         message: message,
         imageUrl: imageUrl,
         imageData: currentImageData,
       );
+
+      print('API response result: $result');
 
       // Remove the loading message from user
       if (messages.isNotEmpty &&
@@ -83,20 +95,42 @@ class ChatState extends ChangeNotifier {
         messages.removeLast();
       }
 
-      // Only clear image data after successful API response
-      selectedImageData = null;
-      print('API response successful, cleared image data');
+      // Handle API response
+      if (result['success'] == true) {
+        final aiResponse = result['response'] ?? 'No response from AI';
 
-      messages.add(ChatMessage(
-        text: result['response'] ?? 'No response from AI',
-        isUser: false,
-        timestamp: DateTime.now(),
-      ));
+        // Only clear image data after successful API response
+        selectedImageData = null;
+        print('API response successful, cleared image data');
+
+        messages.add(ChatMessage(
+          text: aiResponse,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      } else {
+        // Handle API error
+        final errorMessage = result['error'] ?? 'Unknown API error';
+        print('API Error: $errorMessage');
+
+        // Don't clear the image data on error, so user can try again
+        selectedImageData = currentImageData;
+        print('API failed, restored image data for retry');
+
+        messages.add(ChatMessage(
+          text: 'Error: $errorMessage',
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      }
+
       isLoading = false;
 
       // Force UI update to reflect cleared image and new response
       notifyListeners();
     } catch (e) {
+      print('API call failed with error: $e');
+
       // Remove the loading message from user
       if (messages.isNotEmpty &&
           messages.last.isUser &&

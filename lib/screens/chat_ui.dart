@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
-import '../widgets/message_widget.dart' as message_widgets;
+import '../widgets/message_widget.dart';
 import '../widgets/message/loading_indicator.dart';
 import '../widgets/input/chat_input_row.dart';
 import '../widgets/input/chat_input_state_provider.dart';
@@ -105,13 +105,8 @@ class _ChatUIState extends State<ChatUI> {
                   return const LoadingIndicator();
                 }
                 final message = widget.messages[index];
-                return message_widgets.MessageWidget(
-                  message: {
-                    'content': message.text,
-                    'image_data': message.imageData,
-                    'timestamp': message.timestamp,
-                  },
-                  isUser: message.isUser,
+                return MessageWidget(
+                  message: message,
                 );
               },
             ),
