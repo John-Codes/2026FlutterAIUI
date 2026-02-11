@@ -19,13 +19,16 @@ class _SendButtonState extends State<SendButton> {
       return const SizedBox.shrink();
     }
 
+    // Check if button should be enabled: text is present OR image is selected
+    final hasText = stateProvider.textController.text.trim().isNotEmpty;
+    final hasImage = stateProvider.selectedImageData != null;
+    final canSend = hasText || hasImage;
+
     return Container(
       decoration: BoxDecoration(
         color: stateProvider.isLoading || stateProvider.isProcessingFile
             ? Colors.grey[600]!
-            : (stateProvider.textController.text.trim().isNotEmpty
-                ? Colors.blue[700]!
-                : Colors.grey[600]!),
+            : (canSend ? Colors.blue[700]! : Colors.grey[600]!),
         borderRadius: BorderRadius.circular(25),
       ),
       child: stateProvider.isLoading || stateProvider.isProcessingFile
@@ -39,9 +42,7 @@ class _SendButtonState extends State<SendButton> {
             )
           : IconButton(
               icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: stateProvider.textController.text.trim().isEmpty
-                  ? null
-                  : stateProvider.onSendMessage,
+              onPressed: canSend ? stateProvider.onSendMessage : null,
               tooltip: 'Send message',
             ),
     );
@@ -81,8 +82,13 @@ class _SendKeyboardListenerState extends State<SendKeyboardListener> {
                   .contains(LogicalKeyboardKey.shiftRight);
 
           if (!isShiftPressed) {
-            // Enter: Send message
-            if (!(stateProvider.isLoading || stateProvider.isProcessingFile)) {
+            // Enter: Send message - check if text or image is present
+            final hasText = stateProvider.textController.text.trim().isNotEmpty;
+            final hasImage = stateProvider.selectedImageData != null;
+            final canSend = hasText || hasImage;
+
+            if (!(stateProvider.isLoading || stateProvider.isProcessingFile) &&
+                canSend) {
               stateProvider.onSendMessage();
             }
           }

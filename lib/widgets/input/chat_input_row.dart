@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
-import '../input/chat_input_state_provider.dart';
+import 'image_preview.dart';
+import 'file_attachment_button.dart';
+import 'chat_input_field.dart';
 import 'send_button.dart';
-import 'file_attachment_section.dart';
-import 'text_input.dart' as CustomTextInput;
+import '../../widgets/input/chat_input_state_provider.dart';
+import '../../widgets/loading/file_loading_indicator.dart';
 
-/// Chat input row component that coordinates layout for input components
-/// Arranges file attachment, text input, and send button horizontally
+/// Chat input row component that coordinates all input elements
+/// Follows SRP by only coordinating the layout and state management
 class ChatInputRow extends StatelessWidget {
-  const ChatInputRow({super.key});
+  final TextEditingController textController;
+  final FocusNode focusNode;
+  final VoidCallback onSendMessage;
+  final VoidCallback onShowImageDialog;
+  final VoidCallback onClearSelectedImage;
+  final String? selectedImageData;
+  final bool isLoading;
+  final bool isProcessingFile;
+
+  const ChatInputRow({
+    super.key,
+    required this.textController,
+    required this.focusNode,
+    required this.onSendMessage,
+    required this.onShowImageDialog,
+    required this.onClearSelectedImage,
+    required this.selectedImageData,
+    required this.isLoading,
+    required this.isProcessingFile,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final stateProvider = ChatInputStateProvider.of(context);
-    if (stateProvider == null) {
-      return const SizedBox.shrink();
-    }
-
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width > 800 ? 24 : 16,
@@ -27,29 +43,53 @@ class ChatInputRow extends StatelessWidget {
           top: BorderSide(color: Color(0xFF333333)),
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // File attachment button on the left
-          const SizedBox(
-            width: 48,
-            child: FileAttachmentSection(),
-          ),
-          const SizedBox(width: 12),
-          // Expanded text input in the middle
-          Expanded(
-            child: SendKeyboardListener(
-              child: CustomTextInput.TextInput(
-                textController: stateProvider.textController,
-                focusNode: stateProvider.focusNode,
-                onSendMessage: stateProvider.onSendMessage,
-              ),
+          // Loading indicator when processing
+          if (isLoading || isProcessingFile)
+            const FileLoadingIndicator(
+              message: 'Processing image...',
+              showProgress: true,
             ),
+          // Image preview when an image is selected
+          ImagePreview(
+            selectedImageData: selectedImageData,
+            onClearImage: onClearSelectedImage,
+            isLoading: isLoading,
+            isProcessingFile: isProcessingFile,
           ),
-          const SizedBox(width: 12),
-          // Send button on the right
-          const SendButton(),
+          // Input row
+          _buildInputRow(),
         ],
       ),
+    );
+  }
+
+  Widget _buildInputRow() {
+    return Row(
+      children: [
+        // File attachment button on the left
+        FileAttachmentButton(
+          onPressed: onShowImageDialog,
+          isLoading: isLoading,
+          isProcessingFile: isProcessingFile,
+        ),
+        const SizedBox(width: 12),
+        // Text input in the middle
+        ChatInputField(
+          controller: textController,
+          focusNode: focusNode,
+          onTextChanged: () {
+            // The send button will update automatically when the text changes
+            // as the parent widget rebuilds
+          },
+          isLoading: isLoading,
+          isProcessingFile: isProcessingFile,
+        ),
+        const SizedBox(width: 12),
+        // Send button on the right
+        SendButton(),
+      ],
     );
   }
 }

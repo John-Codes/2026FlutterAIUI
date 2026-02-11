@@ -30,7 +30,12 @@ class ChatState extends ChangeNotifier {
 
   Future<void> sendMessage() async {
     print('sendMessage called');
-    if (textController.text.trim().isEmpty) return;
+
+    // Check if there's text or an image to send
+    final hasText = textController.text.trim().isNotEmpty;
+    final hasImage = selectedImageData != null;
+
+    if (!hasText && !hasImage) return;
 
     final message = textController.text.trim();
     print('Message to send: $message');
@@ -40,13 +45,12 @@ class ChatState extends ChangeNotifier {
     print(
         'Current image data: ${currentImageData != null ? 'has image' : 'no image'}');
 
-    // Clear text input and selected image immediately
+    // Clear text input but preserve image preview during API call
     textController.clear();
     imageUrl = null;
-    selectedImageData = null;
-    print('Cleared image data, calling notifyListeners()');
+    print('Cleared text input and URL, preserving image preview');
 
-    // Force UI update to clear image preview immediately
+    // Force UI update to show cleared text but keep image preview
     notifyListeners();
 
     focusNode.requestFocus();
@@ -57,12 +61,12 @@ class ChatState extends ChangeNotifier {
       isUser: true,
       timestamp: DateTime.now(),
       imageData: currentImageData,
-      isLoading: false,
+      isLoading: true, // Mark as loading to show loading indicator
     ));
     isLoading = true;
-    print('Added user message, setting isLoading to true');
+    print('Added user message with loading state, setting isLoading to true');
 
-    // Force UI update to show the user message immediately
+    // Force UI update to show the user message with loading indicator
     notifyListeners();
 
     try {
@@ -79,12 +83,19 @@ class ChatState extends ChangeNotifier {
         messages.removeLast();
       }
 
+      // Only clear image data after successful API response
+      selectedImageData = null;
+      print('API response successful, cleared image data');
+
       messages.add(ChatMessage(
         text: result['response'] ?? 'No response from AI',
         isUser: false,
         timestamp: DateTime.now(),
       ));
       isLoading = false;
+
+      // Force UI update to reflect cleared image and new response
+      notifyListeners();
     } catch (e) {
       // Remove the loading message from user
       if (messages.isNotEmpty &&
@@ -93,12 +104,19 @@ class ChatState extends ChangeNotifier {
         messages.removeLast();
       }
 
+      // Restore image data on API failure so user can try again
+      selectedImageData = currentImageData;
+      print('API failed, restored image data for retry');
+
       messages.add(ChatMessage(
         text: 'Connection Error: ${e.toString()}',
         isUser: false,
         timestamp: DateTime.now(),
       ));
       isLoading = false;
+
+      // Force UI update to reflect restored image and error message
+      notifyListeners();
     }
   }
 

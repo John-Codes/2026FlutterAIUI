@@ -4,7 +4,6 @@ import '../widgets/message_widget.dart' as message_widgets;
 import '../widgets/message/loading_indicator.dart';
 import '../widgets/input/chat_input_row.dart';
 import '../widgets/input/chat_input_state_provider.dart';
-import '../widgets/input/consolidated_file_attachment_button.dart';
 
 class ChatUI extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -132,13 +131,13 @@ class _ChatUIState extends State<ChatUI> {
                 if (stateProvider == null) {
                   return const SizedBox.shrink();
                 }
-                return ConsolidatedFileAttachmentButton(
+                return ChatInputRow(
                   textController: stateProvider.textController,
                   focusNode: stateProvider.focusNode,
                   onSendMessage: stateProvider.onSendMessage,
                   onShowImageDialog: stateProvider.onShowImageDialog,
-                  selectedImageData: stateProvider.selectedImageData,
                   onClearSelectedImage: stateProvider.onClearSelectedImage,
+                  selectedImageData: stateProvider.selectedImageData,
                   isLoading: stateProvider.isLoading,
                   isProcessingFile: stateProvider.isProcessingFile,
                 );

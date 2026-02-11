@@ -24,3 +24,27 @@ always re run the flutter server after changes so we can test.  task is done whe
 /home/aisurvivor/2026AIAPI
 1. fix the input file button when you press in the sub menu select image And you press the send button the image should be sent to the AI api and the image preview should be updated removed from the UI and selected image emptied when the image is sent to the api and the loading indicator should continue until the AI api response arrives the ai response should be posted to the UI as a message.
 always re run the flutter server after changes so we can test.  task is done when I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files.
+
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+1. fix the input file button when you press in the sub menu select image And you press the send button the image should be sent to the AI api and the image preview should be updated removed from the UI and selected image emptied when the image is sent to the api and the loading indicator should continue until the AI api response arrives the ai response should be posted to the UI as a message.
+always re run the flutter server after changes so we can test.  task is done when I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files.
+
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+This is always returned when the AI api returns properly: error choices   Error API response error is being returned even when the AI response is correct this  is not correct must be fixed. 
+always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files.
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+After a image is sent to the ai api it must be posted to the messages in the chat UI and all user and AI messages must have a copy paste button on the left lower end of the message.
+always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files
+
+Theres an error when calling the API when sending an image. Also theres an error with the image not being posted on the messages on the conversation it should stay in the conversation and when the send button is pressed the conversation should be sent to the APi call not just the current message.
+
+always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files
