@@ -61,5 +61,14 @@ the conversation should be sent to the APi call not just the current message.
 /home/aisurvivor/2026AIAPI
 When the image is sent it should stay in the messages.
 
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+When the a image is selected and the send button is pressed remove the processing image loading indicator theres to many loading indicators at the same time.
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
 fix send message button so it sends a message when enter key is pressed and when there is text in the input text box. 
 when shift enter is pressed it should create a new line instead of send message.
+always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files keep everything super simple im a solo dev with no time and monmey for complexity.

@@ -75,16 +75,20 @@ class ChatInputRow extends StatelessWidget {
           isProcessingFile: isProcessingFile,
         ),
         const SizedBox(width: 12),
-        // Text input in the middle
-        ChatInputField(
-          controller: textController,
-          focusNode: focusNode,
-          onTextChanged: () {
-            // The send button will update automatically when the text changes
-            // as the parent widget rebuilds
-          },
-          isLoading: isLoading,
-          isProcessingFile: isProcessingFile,
+        // Text input in the middle with keyboard handling
+        Expanded(
+          child: SendKeyboardListener(
+            child: ChatInputField(
+              controller: textController,
+              focusNode: focusNode,
+              onTextChanged: () {
+                // The send button will update automatically when the text changes
+                // as the parent widget rebuilds
+              },
+              isLoading: isLoading,
+              isProcessingFile: isProcessingFile,
+            ),
+          ),
         ),
         const SizedBox(width: 12),
         // Send button on the right

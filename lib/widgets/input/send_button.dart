@@ -12,6 +12,33 @@ class SendButton extends StatefulWidget {
 }
 
 class _SendButtonState extends State<SendButton> {
+  final ValueNotifier<String> _textNotifier = ValueNotifier('');
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to text changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateTextNotifier();
+    });
+  }
+
+  void _updateTextNotifier() {
+    final stateProvider = ChatInputStateProvider.of(context);
+    if (stateProvider != null) {
+      _textNotifier.value = stateProvider.textController.text;
+      // Add listener to text controller
+      stateProvider.textController.removeListener(_updateTextNotifier);
+      stateProvider.textController.addListener(_updateTextNotifier);
+    }
+  }
+
+  @override
+  void dispose() {
+    _textNotifier.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final stateProvider = ChatInputStateProvider.of(context);
@@ -19,43 +46,50 @@ class _SendButtonState extends State<SendButton> {
       return const SizedBox.shrink();
     }
 
-    // Check if button should be enabled: text is present OR image is selected
-    final hasText = stateProvider.textController.text.trim().isNotEmpty;
-    final hasImage = stateProvider.selectedImageData != null;
-    final canSend = hasText || hasImage;
+    return ValueListenableBuilder<String>(
+      valueListenable: _textNotifier,
+      builder: (context, text, child) {
+        final hasText = text.trim().isNotEmpty;
+        final hasImage = stateProvider.selectedImageData != null;
+        final canSend = hasText || hasImage;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: stateProvider.isLoading || stateProvider.isProcessingFile
-            ? Colors.grey[600]!
-            : (canSend ? Colors.blue[700]! : Colors.grey[600]!),
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: stateProvider.isLoading || stateProvider.isProcessingFile
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: canSend ? stateProvider.onSendMessage : null,
-              tooltip: 'Send message',
-            ),
+        return Container(
+          decoration: BoxDecoration(
+            color: stateProvider.isLoading || stateProvider.isProcessingFile
+                ? Colors.grey[600]!
+                : (canSend ? Colors.blue[700]! : Colors.grey[600]!),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: stateProvider.isLoading || stateProvider.isProcessingFile
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  onPressed: canSend ? stateProvider.onSendMessage : null,
+                  tooltip: 'Send message',
+                ),
+        );
+      },
     );
   }
 }
 
-/// Keyboard listener widget for send functionality
+/// Enhanced keyboard listener widget for send functionality
+/// Uses FocusNode.onKeyEvent for better cross-platform support
 class SendKeyboardListener extends StatefulWidget {
   final Widget child;
+  final FocusNode? focusNode;
 
   const SendKeyboardListener({
     super.key,
     required this.child,
+    this.focusNode,
   });
 
   @override
@@ -63,6 +97,20 @@ class SendKeyboardListener extends StatefulWidget {
 }
 
 class _SendKeyboardListenerState extends State<SendKeyboardListener> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final stateProvider = ChatInputStateProvider.of(context);
@@ -70,9 +118,9 @@ class _SendKeyboardListenerState extends State<SendKeyboardListener> {
       return widget.child;
     }
 
-    return KeyboardListener(
-      focusNode: FocusNode(),
-      onKeyEvent: (event) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.enter) {
           // Check if shift is pressed - if shift is pressed, allow new line
@@ -90,9 +138,16 @@ class _SendKeyboardListenerState extends State<SendKeyboardListener> {
             if (!(stateProvider.isLoading || stateProvider.isProcessingFile) &&
                 canSend) {
               stateProvider.onSendMessage();
+              return KeyEventResult.handled;
             }
+          } else {
+            // Shift+Enter: Allow new line by returning ignored
+            // This lets the TextField handle the new line naturally
+            return KeyEventResult.ignored;
           }
+          return KeyEventResult.ignored;
         }
+        return KeyEventResult.ignored;
       },
       child: widget.child,
     );
