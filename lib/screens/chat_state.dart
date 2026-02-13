@@ -88,21 +88,30 @@ class ChatState extends ChangeNotifier {
 
       print('API response result: $result');
 
-      // Remove the loading message from user
+      // Update the user message to remove loading state but keep the image
       if (messages.isNotEmpty &&
           messages.last.isUser &&
           messages.last.isLoading) {
-        messages.removeLast();
+        // Remove the loading indicator from the user message but keep the image
+        final lastMessage = messages.removeLast();
+        messages.add(ChatMessage(
+          text: lastMessage.text,
+          isUser: true,
+          timestamp: lastMessage.timestamp,
+          imageData: lastMessage.imageData,
+          isLoading: false, // Remove loading state but keep the image
+        ));
+        print('Updated user message to remove loading state, preserved image');
       }
 
       // Handle API response
       if (result['success'] == true) {
         final aiResponse = result['response'] ?? 'No response from AI';
 
-        // Clear image data after successful API response
+        // Clear image data after successful API response (only from input state, not conversation history)
         selectedImageData = null;
         imageUrl = null;
-        print('API response successful, cleared image data from state');
+        print('API response successful, cleared image data from input state');
 
         messages.add(ChatMessage(
           text: aiResponse,
@@ -132,11 +141,21 @@ class ChatState extends ChangeNotifier {
     } catch (e) {
       print('API call failed with error: $e');
 
-      // Remove the loading message from user
+      // Update the user message to remove loading state but keep the image (even on error)
       if (messages.isNotEmpty &&
           messages.last.isUser &&
           messages.last.isLoading) {
-        messages.removeLast();
+        // Remove the loading indicator from the user message but keep the image
+        final lastMessage = messages.removeLast();
+        messages.add(ChatMessage(
+          text: lastMessage.text,
+          isUser: true,
+          timestamp: lastMessage.timestamp,
+          imageData: lastMessage.imageData,
+          isLoading: false, // Remove loading state but keep the image
+        ));
+        print(
+            'Updated user message to remove loading state on error, preserved image');
       }
 
       // Restore image data on API failure so user can try again
