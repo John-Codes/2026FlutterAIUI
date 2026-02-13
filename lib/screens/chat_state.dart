@@ -53,8 +53,8 @@ class ChatState extends ChangeNotifier {
 
     // Clear text input but preserve image preview during API call
     textController.clear();
-    imageUrl = null;
-    print('Cleared text input and URL, preserving image preview');
+    // Don't clear imageUrl yet - preserve it for the UI
+    print('Cleared text input, preserving image preview');
 
     // Force UI update to show cleared text but keep image preview
     notifyListeners();
@@ -99,9 +99,10 @@ class ChatState extends ChangeNotifier {
       if (result['success'] == true) {
         final aiResponse = result['response'] ?? 'No response from AI';
 
-        // Only clear image data after successful API response
+        // Clear image data after successful API response
         selectedImageData = null;
-        print('API response successful, cleared image data');
+        imageUrl = null;
+        print('API response successful, cleared image data from state');
 
         messages.add(ChatMessage(
           text: aiResponse,

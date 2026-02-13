@@ -45,6 +45,21 @@ always re run the flutter server after changes so we can test. Do not mark task 
 After a image is sent to the ai api it must be posted to the messages in the chat UI and all user and AI messages must have a copy paste button on the left lower end of the message.
 always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files
 
-Theres an error when calling the API when sending an image. Also theres an error with the image not being posted on the messages on the conversation it should stay in the conversation and when the send button is pressed the conversation should be sent to the APi call not just the current message.
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+Theres an error when calling the API when sending an image. Also theres an error with the image not being posted on the messages on the conversation it should stay in the conversation and when the send button is pressed 
 
 always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files
+
+
+
+the conversation should be sent to the APi call not just the current message.
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+When the image is sent it should stay in the messages.
+
+fix send message button so it sends a message when enter key is pressed and when there is text in the input text box. 
+when shift enter is pressed it should create a new line instead of send message.
