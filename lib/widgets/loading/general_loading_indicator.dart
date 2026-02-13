@@ -35,30 +35,24 @@ class GeneralLoadingIndicator extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF333333)),
+        color: const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF404040)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.blue[700],
-              shape: BoxShape.circle,
-            ),
-            child: const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ),
-          ),
+          // Modern animated dots
+          _buildAnimatedDots(),
           const SizedBox(width: 16),
           Flexible(
             fit: FlexFit.loose,
@@ -66,13 +60,33 @@ class GeneralLoadingIndicator extends StatelessWidget {
               message,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnimatedDots() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(3, (index) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: Colors.blue[400],
+            shape: BoxShape.circle,
+          ),
+        );
+      }),
     );
   }
 }
