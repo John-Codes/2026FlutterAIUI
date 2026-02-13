@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../widgets/loading/file_loading_indicator.dart';
 import '../input/chat_input_state_provider.dart';
 
 /// File attachment section component with file logic only
@@ -17,12 +16,6 @@ class FileAttachmentSection extends StatelessWidget {
 
     return Column(
       children: [
-        // Show loading indicator when processing
-        if (stateProvider.isLoading || stateProvider.isProcessingFile)
-          const FileLoadingIndicator(
-            message: 'Sending image to AI...',
-            showProgress: true,
-          ),
         // Image preview when an image is selected
         if (stateProvider.selectedImageData != null)
           _buildImagePreview(stateProvider),

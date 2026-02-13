@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../widgets/loading/file_loading_indicator.dart';
 import '../../services/unified_image_picker_service.dart';
 import '../../widgets/dialogs/unified_image_selection_dialog.dart';
 
@@ -130,12 +129,6 @@ class _ConsolidatedFileAttachmentButtonState
       ),
       child: Column(
         children: [
-          // Loading indicator when processing
-          if (widget.isLoading || widget.isProcessingFile)
-            const FileLoadingIndicator(
-              message: 'Processing image...',
-              showProgress: true,
-            ),
           // Image preview when an image is selected
           if (widget.selectedImageData != null &&
               !widget.isLoading &&

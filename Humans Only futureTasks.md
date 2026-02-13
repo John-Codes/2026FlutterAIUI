@@ -72,3 +72,17 @@ When the a image is selected and the send button is pressed remove the processin
 fix send message button so it sends a message when enter key is pressed and when there is text in the input text box. 
 when shift enter is pressed it should create a new line instead of send message.
 always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files keep everything super simple im a solo dev with no time and monmey for complexity.
+
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+add markdown rendering to the messages so it looks pro.
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+Streaming text 
+Markdown 
+One loading  indicator on top of the input text box when send message button is pressed.Make it more general right now theres  two processing image and loading indicator 
+send text of the conversations to ai not just last message. Dont resend the images just the text descriptions.

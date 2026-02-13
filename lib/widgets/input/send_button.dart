@@ -60,20 +60,15 @@ class _SendButtonState extends State<SendButton> {
                 : (canSend ? Colors.blue[700]! : Colors.grey[600]!),
             borderRadius: BorderRadius.circular(25),
           ),
-          child: stateProvider.isLoading || stateProvider.isProcessingFile
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : IconButton(
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  onPressed: canSend ? stateProvider.onSendMessage : null,
-                  tooltip: 'Send message',
-                ),
+          child: IconButton(
+            icon: const Icon(Icons.send, color: Colors.white),
+            onPressed: (canSend &&
+                    !stateProvider.isLoading &&
+                    !stateProvider.isProcessingFile)
+                ? stateProvider.onSendMessage
+                : null,
+            tooltip: 'Send message',
+          ),
         );
       },
     );

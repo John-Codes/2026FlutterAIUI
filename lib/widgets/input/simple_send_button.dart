@@ -27,24 +27,15 @@ class SimpleSendButton extends StatelessWidget {
                 : Colors.grey[600]!),
         borderRadius: BorderRadius.circular(25),
       ),
-      child: isLoading || isProcessingFile
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: textController.text.trim().isEmpty ||
-                      isLoading ||
-                      isProcessingFile
-                  ? null
-                  : onSendMessage,
-              tooltip: 'Send message',
-            ),
+      child: IconButton(
+        icon: const Icon(Icons.send, color: Colors.white),
+        onPressed: (textController.text.trim().isNotEmpty &&
+                !isLoading &&
+                !isProcessingFile)
+            ? onSendMessage
+            : null,
+        tooltip: 'Send message',
+      ),
     );
   }
 }

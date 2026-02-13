@@ -6,27 +6,18 @@ import 'package:flutter/material.dart';
 class ImagePreview extends StatelessWidget {
   final String? selectedImageData;
   final VoidCallback onClearImage;
-  final bool isLoading;
-  final bool isProcessingFile;
 
   const ImagePreview({
     super.key,
     required this.selectedImageData,
     required this.onClearImage,
-    required this.isLoading,
-    required this.isProcessingFile,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Show image preview if image is selected AND not in loading state
+    // Show image preview if image is selected
     if (selectedImageData == null) {
       return const SizedBox.shrink();
-    }
-
-    // If loading or processing, show a simplified version with loading indicator
-    if (isLoading || isProcessingFile) {
-      return _buildLoadingPreview();
     }
 
     return _buildImagePreview();
@@ -93,55 +84,6 @@ class ImagePreview extends StatelessWidget {
             tooltip: 'Clear image',
             padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingPreview() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // Loading indicator
-          const SizedBox(
-            width: 60,
-            height: 60,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Loading info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Sending Image...',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Please wait while processing',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

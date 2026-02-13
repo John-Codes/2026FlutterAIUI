@@ -3,8 +3,7 @@ import 'image_preview.dart';
 import 'file_attachment_button.dart';
 import 'chat_input_field.dart';
 import 'send_button.dart';
-import '../../widgets/input/chat_input_state_provider.dart';
-import '../../widgets/loading/file_loading_indicator.dart';
+import '../../widgets/loading/general_loading_indicator.dart';
 
 /// Chat input row component that coordinates all input elements
 /// Follows SRP by only coordinating the layout and state management
@@ -45,18 +44,15 @@ class ChatInputRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Loading indicator when processing
-          if (isLoading || isProcessingFile)
-            const FileLoadingIndicator(
-              message: 'Processing image...',
-              showProgress: true,
-            ),
+          // General loading indicator (appears above input text box)
+          GeneralLoadingIndicator(
+            isLoading: isLoading,
+            isProcessingFile: isProcessingFile,
+          ),
           // Image preview when an image is selected
           ImagePreview(
             selectedImageData: selectedImageData,
             onClearImage: onClearSelectedImage,
-            isLoading: isLoading,
-            isProcessingFile: isProcessingFile,
           ),
           // Input row
           _buildInputRow(),
@@ -71,8 +67,6 @@ class ChatInputRow extends StatelessWidget {
         // File attachment button on the left
         FileAttachmentButton(
           onPressed: onShowImageDialog,
-          isLoading: isLoading,
-          isProcessingFile: isProcessingFile,
         ),
         const SizedBox(width: 12),
         // Text input in the middle with keyboard handling
@@ -85,8 +79,6 @@ class ChatInputRow extends StatelessWidget {
                 // The send button will update automatically when the text changes
                 // as the parent widget rebuilds
               },
-              isLoading: isLoading,
-              isProcessingFile: isProcessingFile,
             ),
           ),
         ),
