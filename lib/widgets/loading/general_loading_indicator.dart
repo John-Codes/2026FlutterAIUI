@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// General loading indicator that shows appropriate messages based on context
 /// Follows SRP by only handling loading display logic
-class GeneralLoadingIndicator extends StatelessWidget {
+class GeneralLoadingIndicator extends StatefulWidget {
   final bool isLoading;
   final bool isProcessingFile;
   final String? customMessage;
@@ -15,19 +16,49 @@ class GeneralLoadingIndicator extends StatelessWidget {
   });
 
   @override
+  State<GeneralLoadingIndicator> createState() =>
+      _GeneralLoadingIndicatorState();
+}
+
+class _GeneralLoadingIndicatorState extends State<GeneralLoadingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+    _controller.repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Only show if either loading state is true
-    if (!isLoading && !isProcessingFile) {
+    if (!widget.isLoading && !widget.isProcessingFile) {
       return const SizedBox.shrink();
     }
 
     // Determine the appropriate message
     String message;
-    if (customMessage != null) {
-      message = customMessage!;
-    } else if (isProcessingFile) {
+    if (widget.customMessage != null) {
+      message = widget.customMessage!;
+    } else if (widget.isProcessingFile) {
       message = 'Processing image...';
-    } else if (isLoading) {
+    } else if (widget.isLoading) {
       message = 'Sending message...';
     } else {
       message = 'Loading...';
@@ -52,7 +83,31 @@ class GeneralLoadingIndicator extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Modern animated dots
-          _buildAnimatedDots(),
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(3, (index) {
+                  final delay = index * 0.2;
+                  final scale = 1.0 +
+                      0.3 * sin((_animation.value * 2 * pi) + (delay * 2 * pi));
+                  return Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.blue[400],
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
           const SizedBox(width: 16),
           Flexible(
             fit: FlexFit.loose,
@@ -68,25 +123,6 @@ class GeneralLoadingIndicator extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildAnimatedDots() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(3, (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: Colors.blue[400],
-            shape: BoxShape.circle,
-          ),
-        );
-      }),
     );
   }
 }
