@@ -121,31 +121,34 @@ class _SendKeyboardListenerState extends State<SendKeyboardListener> {
     return Focus(
       focusNode: _focusNode,
       onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.enter) {
-          // Check if shift is pressed - if shift is pressed, allow new line
-          final isShiftPressed = HardwareKeyboard.instance.physicalKeysPressed
-                  .contains(LogicalKeyboardKey.shiftLeft) ||
-              HardwareKeyboard.instance.physicalKeysPressed
-                  .contains(LogicalKeyboardKey.shiftRight);
+        // We only care about key down and repeat events
+        if (event is KeyDownEvent || event is KeyRepeatEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.enter) {
+            // Use the more reliable isShiftPressed method
+            final bool isShiftPressed =
+                HardwareKeyboard.instance.isShiftPressed;
 
-          if (!isShiftPressed) {
-            // Enter: Send message - check if text or image is present
-            final hasText = stateProvider.textController.text.trim().isNotEmpty;
-            final hasImage = stateProvider.selectedImageData != null;
-            final canSend = hasText || hasImage;
+            if (!isShiftPressed) {
+              // Plain Enter: Send message - check if text or image is present
+              final hasText =
+                  stateProvider.textController.text.trim().isNotEmpty;
+              final hasImage = stateProvider.selectedImageData != null;
+              final canSend = hasText || hasImage;
 
-            if (!(stateProvider.isLoading || stateProvider.isProcessingFile) &&
-                canSend) {
-              stateProvider.onSendMessage();
-              return KeyEventResult.handled;
+              if (!(stateProvider.isLoading ||
+                      stateProvider.isProcessingFile) &&
+                  canSend) {
+                stateProvider.onSendMessage();
+                return KeyEventResult
+                    .handled; // Prevent newline + prevent default submit
+              }
+              return KeyEventResult.ignored;
+            } else {
+              // Shift+Enter: Do nothing here → Flutter will insert \n automatically
+              return KeyEventResult
+                  .ignored; // Let the default behavior happen (newline)
             }
-          } else {
-            // Shift+Enter: Allow new line by returning ignored
-            // This lets the TextField handle the new line naturally
-            return KeyEventResult.ignored;
           }
-          return KeyEventResult.ignored;
         }
         return KeyEventResult.ignored;
       },

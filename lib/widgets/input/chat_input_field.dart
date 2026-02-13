@@ -25,7 +25,7 @@ class ChatInputField extends StatelessWidget {
       focusNode: focusNode,
       enabled: !isLoading && !isProcessingFile,
       textInputAction:
-          TextInputAction.none, // Prevent platform-specific behavior
+          TextInputAction.newline, // Allow newlines with Shift+Enter
       decoration: InputDecoration(
         hintText: isLoading || isProcessingFile
             ? 'Processing...'
