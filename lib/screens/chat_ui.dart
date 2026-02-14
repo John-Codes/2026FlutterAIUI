@@ -3,6 +3,7 @@ import '../models/chat_message.dart';
 import '../widgets/message_widget.dart';
 import '../widgets/input/chat_input_row.dart';
 import '../widgets/input/chat_input_state_provider.dart';
+import 'settings_screen.dart';
 
 class ChatUI extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -82,7 +83,12 @@ class _ChatUIState extends State<ChatUI> {
                   const Text('Settings', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navigate to settings screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
               },
             ),
           ],
