@@ -11,12 +11,24 @@ class SendButton extends StatefulWidget {
   State<SendButton> createState() => _SendButtonState();
 }
 
-class _SendButtonState extends State<SendButton> {
+class _SendButtonState extends State<SendButton>
+    with SingleTickerProviderStateMixin {
   final ValueNotifier<String> _textNotifier = ValueNotifier('');
+  late AnimationController _animationController;
+  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _rotationAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
     // Listen to text changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateTextNotifier();
@@ -36,6 +48,7 @@ class _SendButtonState extends State<SendButton> {
   @override
   void dispose() {
     _textNotifier.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -52,23 +65,92 @@ class _SendButtonState extends State<SendButton> {
         final hasText = text.trim().isNotEmpty;
         final hasImage = stateProvider.selectedImageData != null;
         final canSend = hasText || hasImage;
+        final isLoading =
+            stateProvider.isLoading || stateProvider.isProcessingFile;
 
-        return Container(
-          decoration: BoxDecoration(
-            color: stateProvider.isLoading || stateProvider.isProcessingFile
-                ? Colors.grey[600]!
-                : (canSend ? Colors.blue[700]! : Colors.grey[600]!),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.send, color: Colors.white),
-            onPressed: (canSend &&
-                    !stateProvider.isLoading &&
-                    !stateProvider.isProcessingFile)
-                ? stateProvider.onSendMessage
-                : null,
-            tooltip: 'Send message',
-          ),
+        // Animate when loading state changes
+        if (isLoading && !_animationController.isAnimating) {
+          _animationController.forward();
+        } else if (!isLoading && _animationController.isAnimating) {
+          _animationController.reverse();
+        }
+
+        return AnimatedBuilder(
+          animation: _rotationAnimation,
+          builder: (context, child) {
+            return Container(
+              decoration: BoxDecoration(
+                color: isLoading
+                    ? Colors.grey[700]!
+                    : (canSend ? Colors.blue[600]! : Colors.grey[600]!),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: isLoading
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : (canSend
+                        ? [
+                            BoxShadow(
+                              color: Colors.blue.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null),
+              ),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                transform: isLoading
+                    ? Matrix4.diagonal3Values(0.95, 0.95, 1.0)
+                    : Matrix4.identity(),
+                child: IconButton(
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    transitionBuilder: (child, animation) {
+                      return RotationTransition(
+                        turns: animation,
+                        child: ScaleTransition(
+                          scale: CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.elasticOut,
+                          ),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: isLoading
+                        ? const Icon(
+                            Icons.hourglass_empty,
+                            color: Colors.white,
+                            key: ValueKey('loading'),
+                            size: 22,
+                          )
+                        : const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            key: ValueKey('send'),
+                            size: 22,
+                          ),
+                  ),
+                  onPressed: (canSend && !isLoading)
+                      ? stateProvider.onSendMessage
+                      : null,
+                  tooltip: isLoading ? 'Sending...' : 'Send message',
+                  style: IconButton.styleFrom(
+                    disabledForegroundColor: Colors.white.withOpacity(0.4),
+                    hoverColor: Colors.blue[500],
+                    focusColor: Colors.blue[500],
+                    highlightColor: Colors.blue[400],
+                    padding: const EdgeInsets.all(12),
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
