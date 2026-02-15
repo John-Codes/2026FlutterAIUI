@@ -3,7 +3,7 @@ import 'image_preview.dart';
 import 'file_attachment_button.dart';
 import 'chat_input_field.dart';
 import 'send_button.dart';
-import '../../widgets/loading/general_loading_indicator.dart';
+import '../../widgets/simple_loading_line.dart';
 
 /// Chat input row component that coordinates all input elements
 /// Follows SRP by only coordinating the layout and state management
@@ -44,11 +44,8 @@ class ChatInputRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // General loading indicator (appears above input text box)
-          GeneralLoadingIndicator(
-            isLoading: isLoading,
-            isProcessingFile: isProcessingFile,
-          ),
+          // Ultra-thin loading line (appears above input text box)
+          if (isLoading) const SimpleLoadingLine(),
           // Image preview when an image is selected
           ImagePreview(
             selectedImageData: selectedImageData,

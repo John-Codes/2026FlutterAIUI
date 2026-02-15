@@ -86,3 +86,10 @@ Streaming text
 Markdown 
 One loading  indicator on top of the input text box when send message button is pressed.Make it more general right now theres  two processing image and loading indicator 
 send text of the conversations to ai not just last message. Dont resend the images just the text descriptions.
+
+
+
+/home/aisurvivor/2026FlutterAIUI
+/home/aisurvivor/2026AIAPI
+make loading indicator very flat like a 2-3 pixel line no text and wide and just a modern looking line animation. keep it super simple but modern and clean.
+always re run the flutter server after changes so we can test. Do not mark task as done until I test and approve. until I can verify it is working properly. keep  only your scope task changes SRP if a components logic gets to complex try to break it down in to smaller files keep everything super simple im a solo dev with no time and monmey for complexity.
