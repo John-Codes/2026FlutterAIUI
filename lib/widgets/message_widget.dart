@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import '../models/chat_message.dart';
 import '../../utils/formatters.dart';
+import 'markdown_message.dart';
 
 class MessageWidget extends StatelessWidget {
   final ChatMessage message;
@@ -116,13 +117,15 @@ class MessageWidget extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.only(
                                 bottom: 32, left: 32, right: 8),
-                            child: Text(
-                              message.text,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
+                            child: message.isUser
+                                ? Text(
+                                    message.text,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  )
+                                : MarkdownMessageWidget(message: message),
                           ),
                           // Copy button positioned on the left lower end inside the message
                           Positioned(
