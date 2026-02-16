@@ -7,6 +7,8 @@ class LoadingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      // Add extra bottom spacing for better visual separation
+      padding: const EdgeInsets.only(bottom: 25),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -121,14 +121,18 @@ class MessageWidget extends StatelessWidget {
                             ),
                           ),
                           if (!isUser)
-                            IconButton(
-                              icon: const Icon(Icons.copy,
-                                  color: Colors.white70, size: 18),
-                              onPressed: () =>
-                                  _copyToClipboard(context, content),
-                              tooltip: 'Copy message',
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(),
+                            Container(
+                              // Add top margin for better spacing
+                              margin: const EdgeInsets.only(top: 29),
+                              child: IconButton(
+                                icon: const Icon(Icons.copy,
+                                    color: Colors.white70, size: 18),
+                                onPressed: () =>
+                                    _copyToClipboard(context, content),
+                                tooltip: 'Copy message',
+                                padding: const EdgeInsets.all(4),
+                                constraints: const BoxConstraints(),
+                              ),
                             ),
                         ],
                       ),

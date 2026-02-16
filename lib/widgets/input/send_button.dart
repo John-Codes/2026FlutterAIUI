@@ -11,23 +11,12 @@ class SendButton extends StatefulWidget {
   State<SendButton> createState() => _SendButtonState();
 }
 
-class _SendButtonState extends State<SendButton>
-    with SingleTickerProviderStateMixin {
+class _SendButtonState extends State<SendButton> {
   final ValueNotifier<String> _textNotifier = ValueNotifier('');
-  late AnimationController _animationController;
-  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _rotationAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
 
     // Listen to text changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,7 +37,6 @@ class _SendButtonState extends State<SendButton>
   @override
   void dispose() {
     _textNotifier.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -68,15 +56,8 @@ class _SendButtonState extends State<SendButton>
         final isLoading =
             stateProvider.isLoading || stateProvider.isProcessingFile;
 
-        // Animate when loading state changes
-        if (isLoading && !_animationController.isAnimating) {
-          _animationController.forward();
-        } else if (!isLoading && _animationController.isAnimating) {
-          _animationController.reverse();
-        }
-
         return AnimatedBuilder(
-          animation: _rotationAnimation,
+          animation: const AlwaysStoppedAnimation<double>(1.0),
           builder: (context, child) {
             return Container(
               decoration: BoxDecoration(
@@ -87,7 +68,7 @@ class _SendButtonState extends State<SendButton>
                 boxShadow: isLoading
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -95,7 +76,7 @@ class _SendButtonState extends State<SendButton>
                     : (canSend
                         ? [
                             BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
+                              color: Colors.blue.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -109,24 +90,21 @@ class _SendButtonState extends State<SendButton>
                     : Matrix4.identity(),
                 child: IconButton(
                   icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
+                    duration: const Duration(milliseconds: 200),
                     transitionBuilder: (child, animation) {
-                      return RotationTransition(
-                        turns: animation,
-                        child: ScaleTransition(
-                          scale: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.elasticOut,
-                          ),
-                          child: child,
+                      return ScaleTransition(
+                        scale: CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeInOut,
                         ),
+                        child: child,
                       );
                     },
                     child: isLoading
                         ? const Icon(
-                            Icons.hourglass_empty,
+                            Icons.square,
                             color: Colors.white,
-                            key: ValueKey('loading'),
+                            key: ValueKey('stop'),
                             size: 22,
                           )
                         : const Icon(
@@ -141,7 +119,8 @@ class _SendButtonState extends State<SendButton>
                       : null,
                   tooltip: isLoading ? 'Sending...' : 'Send message',
                   style: IconButton.styleFrom(
-                    disabledForegroundColor: Colors.white.withOpacity(0.4),
+                    disabledForegroundColor:
+                        Colors.white.withValues(alpha: 0.4),
                     hoverColor: Colors.blue[500],
                     focusColor: Colors.blue[500],
                     highlightColor: Colors.blue[400],
