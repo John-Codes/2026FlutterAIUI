@@ -16,6 +16,8 @@ dependencies:
   file_selector: ^1.1.0
   camera: ^0.10.5+2
   flutter_markdown_plus: ^1.0.7
+  supabase_flutter: ^2.3.4
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:

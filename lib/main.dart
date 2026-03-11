@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/chat_screen.dart';
-import 'theme/app_theme.dart';
+import 'main_auth_wrapper.dart';
 
 void main() {
   runApp(const AuthWrapper());

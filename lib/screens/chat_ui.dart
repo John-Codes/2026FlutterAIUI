@@ -4,6 +4,8 @@ import '../widgets/message_widget.dart';
 import '../widgets/input/chat_input_row.dart';
 import '../widgets/input/chat_input_state_provider.dart';
 import 'settings_screen.dart';
+import 'chat_drawer_menu.dart';
+import '../services/auth_state_service.dart';
 
 class ChatUI extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -36,9 +38,112 @@ class ChatUI extends StatefulWidget {
 }
 
 class _ChatUIState extends State<ChatUI> {
+  final _authService = AuthStateService();
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 800;
+
+    // Show authentication overlay if not authenticated
+    if (!_authService.isAuthenticated) {
+      return Scaffold(
+        key: widget.scaffoldKey,
+        appBar: AppBar(
+          title: const Text('AI Chat'),
+          backgroundColor: const Color(0xFF1E1E1E),
+          foregroundColor: Colors.white,
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+        ),
+        drawer: ChatDrawerMenu(
+          onNavigateToSettings: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
+              ),
+            );
+          },
+          onSignOut: () {
+            // No-op since user is not authenticated
+          },
+        ),
+        body: Center(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[700]!),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.lock_outline,
+                  size: 64,
+                  color: Colors.grey,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Welcome to AI Chat',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Please sign in to start chatting',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/sign_in');
+                  },
+                  icon: const Icon(Icons.login),
+                  label: const Text('Sign In'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/sign_up');
+                  },
+                  child: const Text(
+                    'Create Account',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       key: widget.scaffoldKey,
@@ -55,44 +160,18 @@ class _ChatUIState extends State<ChatUI> {
           ),
         ),
       ),
-      drawer: Drawer(
-        backgroundColor: const Color(0xFF121212),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF1E1E1E),
-              ),
-              child: Text(
-                'AI Chat',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+      drawer: ChatDrawerMenu(
+        onNavigateToSettings: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SettingsScreen(),
             ),
-            ListTile(
-              leading: const Icon(Icons.chat, color: Colors.white),
-              title: const Text('Chat', style: TextStyle(color: Colors.white)),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings, color: Colors.white),
-              title:
-                  const Text('Settings', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+          );
+        },
+        onSignOut: () {
+          Navigator.pushReplacementNamed(context, '/');
+        },
       ),
       body: Column(
         children: [
