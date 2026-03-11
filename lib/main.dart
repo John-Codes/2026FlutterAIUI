@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
-import 'main_auth_wrapper.dart';
+import '/features/AIChatPage/screens/chat_screen.dart';
+import '/features/AIChatPage/theme/app_theme.dart';
 
 void main() {
-  runApp(const AuthWrapper());
+  runApp(
+    MaterialApp(
+      title: 'AI Chat',
+      theme: appTheme(),
+      navigatorKey: GlobalKey<NavigatorState>(),
+      home: const ChatScreen(),
+      routes: {
+        '/chat': (context) => const ChatScreen(),
+      },
+    ),
+  );
 }
