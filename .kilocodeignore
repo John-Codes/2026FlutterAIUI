@@ -8,7 +8,7 @@ build/
 # platform generated code
 android/
 ios/
-web/
+
 
 # dependencies
 node_modules/
